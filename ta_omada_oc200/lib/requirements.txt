@@ -1,0 +1,6 @@
+splunktaucclib
+solnlib==7.0.0
+splunk-sdk
+requests==2.32.3
+chardet==5.2.0
+requests[socks]

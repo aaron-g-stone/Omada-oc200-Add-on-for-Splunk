@@ -1,0 +1,1068 @@
+{
+    "pages": {
+        "configuration": {
+            "tabs": [
+                {
+                    "name": "account",
+                    "table": {
+                        "actions": [
+                            "edit",
+                            "delete",
+                            "clone"
+                        ],
+                        "header": [
+                            {
+                                "label": "Name",
+                                "field": "name"
+                            },
+                            {
+                                "label": "Controller URL",
+                                "field": "base_url"
+                            },
+                            {
+                                "label": "Omada ID",
+                                "field": "omadac_id"
+                            }
+                        ]
+                    },
+                    "entity": [
+                        {
+                            "type": "text",
+                            "label": "Name",
+                            "validators": [
+                                {
+                                    "type": "regex",
+                                    "errorMsg": "Account Name must begin with a letter and consist exclusively of alphanumeric characters and underscores.",
+                                    "pattern": "^[a-zA-Z]\\w*$"
+                                },
+                                {
+                                    "type": "string",
+                                    "errorMsg": "Length of input name should be between 1 and 100",
+                                    "minLength": 1,
+                                    "maxLength": 100
+                                }
+                            ],
+                            "field": "name",
+                            "help": "A unique name for this Omada controller account.",
+                            "required": true
+                        },
+                        {
+                            "type": "text",
+                            "label": "Controller URL",
+                            "field": "base_url",
+                            "help": "Base URL of the Omada hardware controller, including port, e.g. https://198.51.100.10:8043 (no trailing slash).",
+                            "required": true,
+                            "validators": [
+                                {
+                                    "type": "regex",
+                                    "errorMsg": "Must be a URL starting with https:// or http://",
+                                    "pattern": "^https?://.+$"
+                                }
+                            ]
+                        },
+                        {
+                            "type": "text",
+                            "label": "Omada ID (omadacId)",
+                            "field": "omadac_id",
+                            "help": "The Omada ID shown via the eye icon on Settings > Platform Integration > Open API for this application (not the application's display name).",
+                            "required": true
+                        },
+                        {
+                            "type": "singleSelect",
+                            "label": "Authentication Mode",
+                            "field": "auth_type",
+                            "help": "Matches the Open API application's mode on the controller: Client (client_credentials) for a headless service application, or Authorization Code for an application tied to a specific Omada operator account.",
+                            "options": {
+                                "disableSearch": true,
+                                "autoCompleteFields": [
+                                    {
+                                        "value": "client_credentials",
+                                        "label": "Client Credentials (app-to-app)"
+                                    },
+                                    {
+                                        "value": "authorization_code",
+                                        "label": "Authorization Code (delegated user)"
+                                    }
+                                ]
+                            },
+                            "defaultValue": "client_credentials",
+                            "required": true,
+                            "modifyFieldsOnValue": [
+                                {
+                                    "fieldValue": "client_credentials",
+                                    "fieldsToModify": [
+                                        {
+                                            "fieldId": "authorization_code",
+                                            "display": false,
+                                            "required": false
+                                        },
+                                        {
+                                            "fieldId": "redirect_uri",
+                                            "display": false
+                                        }
+                                    ]
+                                },
+                                {
+                                    "fieldValue": "authorization_code",
+                                    "fieldsToModify": [
+                                        {
+                                            "fieldId": "authorization_code",
+                                            "display": true
+                                        },
+                                        {
+                                            "fieldId": "redirect_uri",
+                                            "display": true
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "type": "text",
+                            "label": "Client ID",
+                            "field": "client_id",
+                            "help": "Client ID of the Open API application.",
+                            "required": true
+                        },
+                        {
+                            "type": "text",
+                            "label": "Client Secret",
+                            "field": "client_secret",
+                            "help": "Client Secret of the Open API application. Shown only once at creation time on the controller.",
+                            "required": true,
+                            "encrypted": true
+                        },
+                        {
+                            "type": "text",
+                            "label": "Authorization Code",
+                            "field": "authorization_code",
+                            "help": "Authorization Code mode only. One-time code obtained by visiting the controller's authorization URL in a browser, logging in as the operator this app is delegated to, and approving access. Used once on save to obtain tokens; the TA then refreshes automatically and you won't need to re-enter it unless the refresh token itself expires or is revoked.",
+                            "encrypted": true
+                        },
+                        {
+                            "type": "text",
+                            "label": "Redirect URI",
+                            "field": "redirect_uri",
+                            "help": "Authorization Code mode only. Must exactly match the redirect URI configured on the Open API application on the controller."
+                        },
+                        {
+                            "type": "text",
+                            "label": "Refresh Token (internal)",
+                            "field": "refresh_token",
+                            "help": "Authorization Code mode only. Populated and kept current automatically after the first successful save - leave blank; do not edit.",
+                            "encrypted": true
+                        },
+                        {
+                            "type": "checkbox",
+                            "label": "Verify TLS certificate",
+                            "field": "verify_ssl",
+                            "help": "Uncheck if the controller uses a self-signed certificate (common for local OC200 deployments).",
+                            "defaultValue": true
+                        }
+                    ],
+                    "title": "Accounts"
+                },
+                {
+                    "name": "proxy",
+                    "title": "Proxy",
+                    "entity": [
+                        {
+                            "type": "checkbox",
+                            "label": "Enable",
+                            "field": "proxy_enabled"
+                        },
+                        {
+                            "type": "singleSelect",
+                            "label": "Proxy Type",
+                            "required": false,
+                            "options": {
+                                "disableSearch": true,
+                                "autoCompleteFields": [
+                                    {
+                                        "value": "http",
+                                        "label": "http"
+                                    },
+                                    {
+                                        "value": "socks4",
+                                        "label": "socks4"
+                                    },
+                                    {
+                                        "value": "socks5",
+                                        "label": "socks5"
+                                    }
+                                ]
+                            },
+                            "defaultValue": "http",
+                            "field": "proxy_type"
+                        },
+                        {
+                            "type": "text",
+                            "label": "Host",
+                            "validators": [
+                                {
+                                    "type": "string",
+                                    "errorMsg": "Max host length is 4096",
+                                    "minLength": 1,
+                                    "maxLength": 4096
+                                },
+                                {
+                                    "type": "regex",
+                                    "errorMsg": "Proxy Host should not have special characters",
+                                    "pattern": "^[a-zA-Z]\\w*$"
+                                }
+                            ],
+                            "field": "proxy_url",
+                            "required": true
+                        },
+                        {
+                            "type": "text",
+                            "label": "Port",
+                            "validators": [
+                                {
+                                    "type": "number",
+                                    "range": [
+                                        1,
+                                        65535
+                                    ],
+                                    "isInteger": true
+                                }
+                            ],
+                            "field": "proxy_port",
+                            "required": true
+                        },
+                        {
+                            "type": "text",
+                            "label": "Username",
+                            "validators": [
+                                {
+                                    "type": "string",
+                                    "errorMsg": "Max length of username is 50",
+                                    "minLength": 0,
+                                    "maxLength": 50
+                                }
+                            ],
+                            "field": "proxy_username"
+                        },
+                        {
+                            "type": "text",
+                            "label": "Password",
+                            "validators": [
+                                {
+                                    "type": "string",
+                                    "errorMsg": "Max length of password is 8192",
+                                    "minLength": 0,
+                                    "maxLength": 8192
+                                }
+                            ],
+                            "encrypted": true,
+                            "field": "proxy_password"
+                        },
+                        {
+                            "type": "checkbox",
+                            "label": "DNS resolution",
+                            "field": "proxy_rdns"
+                        }
+                    ]
+                },
+                {
+                    "name": "logging",
+                    "title": "Logging",
+                    "entity": [
+                        {
+                            "type": "singleSelect",
+                            "label": "Log level",
+                            "options": {
+                                "disableSearch": true,
+                                "autoCompleteFields": [
+                                    {
+                                        "value": "DEBUG",
+                                        "label": "DEBUG"
+                                    },
+                                    {
+                                        "value": "INFO",
+                                        "label": "INFO"
+                                    },
+                                    {
+                                        "value": "WARNING",
+                                        "label": "WARNING"
+                                    },
+                                    {
+                                        "value": "ERROR",
+                                        "label": "ERROR"
+                                    },
+                                    {
+                                        "value": "CRITICAL",
+                                        "label": "CRITICAL"
+                                    }
+                                ]
+                            },
+                            "defaultValue": "INFO",
+                            "field": "loglevel",
+                            "required": true,
+                            "validators": [
+                                {
+                                    "type": "regex",
+                                    "errorMsg": "Log level must be one of: DEBUG, INFO, WARNING, ERROR, CRITICAL",
+                                    "pattern": "^DEBUG|INFO|WARNING|ERROR|CRITICAL$"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ],
+            "title": "Configuration",
+            "description": "Set up the connection to your Omada OC200 controller"
+        },
+        "inputs": {
+            "services": [
+                {
+                    "name": "devices",
+                    "title": "Devices (inventory & status)",
+                    "inputHelperModule": "devices_helper",
+                    "entity": [
+                        {
+                            "type": "text",
+                            "label": "Name",
+                            "validators": [
+                                {
+                                    "type": "regex",
+                                    "errorMsg": "Input Name must begin with a letter and consist exclusively of alphanumeric characters and underscores.",
+                                    "pattern": "^[a-zA-Z]\\w*$"
+                                },
+                                {
+                                    "type": "string",
+                                    "errorMsg": "Length of input name should be between 1 and 100",
+                                    "minLength": 1,
+                                    "maxLength": 100
+                                }
+                            ],
+                            "field": "name",
+                            "help": "A unique name for this data input.",
+                            "required": true
+                        },
+                        {
+                            "type": "singleSelect",
+                            "label": "Account",
+                            "options": {
+                                "referenceName": "account"
+                            },
+                            "help": "Omada controller account to use for this input.",
+                            "field": "account",
+                            "required": true,
+                            "validators": [
+                                {
+                                    "type": "string",
+                                    "errorMsg": "Length of account name should be between 1 and 100",
+                                    "minLength": 1,
+                                    "maxLength": 100
+                                }
+                            ]
+                        },
+                        {
+                            "type": "singleSelect",
+                            "field": "index",
+                            "label": "Index",
+                            "defaultValue": "default",
+                            "options": {
+                                "endpointUrl": "data/indexes?search=isInternal=0+disabled=0",
+                                "denyList": "^_.*$",
+                                "createSearchChoice": true
+                            },
+                            "validators": [
+                                {
+                                    "type": "index_name"
+                                }
+                            ]
+                        },
+                        {
+                            "type": "text",
+                            "field": "interval",
+                            "label": "Interval",
+                            "validators": [
+                                {
+                                    "type": "regex",
+                                    "errorMsg": "Interval must be either a non-negative number, CRON interval or -1.",
+                                    "pattern": "^((?:-1|\\d+(?:\\.\\d+)?)|(([\\*\\d{1,2}\\,\\-\\/]+\\s){4}[\\*\\d{1,2}\\,\\-\\/]+))$"
+                                },
+                                {
+                                    "type": "number",
+                                    "range": [
+                                        30,
+                                        86400
+                                    ],
+                                    "errorMsg": "Interval must be between 30 and 86400"
+                                }
+                            ],
+                            "help": "Polling interval in seconds. The local Open API has an undocumented daily call quota - 60s across all sites/devices can exhaust it quickly; raise this if you see 429/quota errors in the TA log.",
+                            "required": true,
+                            "defaultValue": "60"
+                        },
+                        {
+                            "type": "multipleSelect",
+                            "label": "Fields",
+                            "field": "fields",
+                            "help": "Select which fields to ingest for this input. The list is fetched live from the controller via the selected Account once one is chosen, reflecting whatever this firmware actually returns rather than a fixed guess - refreshes automatically if you change the Account. Leave empty to ingest every field. A small set of identifying fields (e.g. mac/name/site) is always included in the ingested data regardless of this selection, even if not checked here, so records stay correlatable.",
+                            "options": {
+                                "endpointUrl": "ta_omada_oc200_fields_devices",
+                                "dependencies": [
+                                    "account"
+                                ]
+                            },
+                            "required": false
+                        },
+                        {
+                            "type": "text",
+                            "label": "Site ID filter (optional)",
+                            "field": "site_filter",
+                            "help": "Comma-separated Omada site IDs to restrict collection to. Leave blank to collect all sites visible to this account."
+                        }
+                    ]
+                },
+                {
+                    "name": "device_stats",
+                    "title": "Device Stats (CPU/mem/traffic metrics)",
+                    "inputHelperModule": "device_stats_helper",
+                    "entity": [
+                        {
+                            "type": "text",
+                            "label": "Name",
+                            "validators": [
+                                {
+                                    "type": "regex",
+                                    "errorMsg": "Input Name must begin with a letter and consist exclusively of alphanumeric characters and underscores.",
+                                    "pattern": "^[a-zA-Z]\\w*$"
+                                },
+                                {
+                                    "type": "string",
+                                    "errorMsg": "Length of input name should be between 1 and 100",
+                                    "minLength": 1,
+                                    "maxLength": 100
+                                }
+                            ],
+                            "field": "name",
+                            "help": "A unique name for this data input.",
+                            "required": true
+                        },
+                        {
+                            "type": "singleSelect",
+                            "label": "Account",
+                            "options": {
+                                "referenceName": "account"
+                            },
+                            "help": "Omada controller account to use for this input.",
+                            "field": "account",
+                            "required": true,
+                            "validators": [
+                                {
+                                    "type": "string",
+                                    "errorMsg": "Length of account name should be between 1 and 100",
+                                    "minLength": 1,
+                                    "maxLength": 100
+                                }
+                            ]
+                        },
+                        {
+                            "type": "singleSelect",
+                            "field": "index",
+                            "label": "Metrics index",
+                            "defaultValue": "default",
+                            "options": {
+                                "endpointUrl": "data/indexes?search=isInternal=0+disabled=0",
+                                "denyList": "^_.*$",
+                                "createSearchChoice": true
+                            },
+                            "validators": [
+                                {
+                                    "type": "index_name"
+                                }
+                            ]
+                        },
+                        {
+                            "type": "text",
+                            "field": "interval",
+                            "label": "Interval",
+                            "validators": [
+                                {
+                                    "type": "regex",
+                                    "errorMsg": "Interval must be either a non-negative number, CRON interval or -1.",
+                                    "pattern": "^((?:-1|\\d+(?:\\.\\d+)?)|(([\\*\\d{1,2}\\,\\-\\/]+\\s){4}[\\*\\d{1,2}\\,\\-\\/]+))$"
+                                },
+                                {
+                                    "type": "number",
+                                    "range": [
+                                        30,
+                                        86400
+                                    ],
+                                    "errorMsg": "Interval must be between 30 and 86400"
+                                }
+                            ],
+                            "help": "Polling interval in seconds. This input emits metrics, not events - the destination index must be a metrics index.",
+                            "required": true,
+                            "defaultValue": "60"
+                        },
+                        {
+                            "type": "multipleSelect",
+                            "label": "Fields",
+                            "field": "fields",
+                            "help": "Select which fields to ingest for this input. The list is fetched live from the controller via the selected Account once one is chosen, reflecting whatever this firmware actually returns rather than a fixed guess - refreshes automatically if you change the Account. Leave empty to ingest every field. A small set of identifying fields (e.g. mac/name/site) is always included in the ingested data regardless of this selection, even if not checked here, so records stay correlatable.",
+                            "options": {
+                                "endpointUrl": "ta_omada_oc200_fields_device_stats",
+                                "dependencies": [
+                                    "account"
+                                ]
+                            },
+                            "required": false
+                        },
+                        {
+                            "type": "text",
+                            "label": "Site ID filter (optional)",
+                            "field": "site_filter",
+                            "help": "Comma-separated Omada site IDs to restrict collection to. Leave blank to collect all sites visible to this account."
+                        }
+                    ]
+                },
+                {
+                    "name": "clients",
+                    "title": "Clients (connected devices & activity)",
+                    "inputHelperModule": "clients_helper",
+                    "entity": [
+                        {
+                            "type": "text",
+                            "label": "Name",
+                            "validators": [
+                                {
+                                    "type": "regex",
+                                    "errorMsg": "Input Name must begin with a letter and consist exclusively of alphanumeric characters and underscores.",
+                                    "pattern": "^[a-zA-Z]\\w*$"
+                                },
+                                {
+                                    "type": "string",
+                                    "errorMsg": "Length of input name should be between 1 and 100",
+                                    "minLength": 1,
+                                    "maxLength": 100
+                                }
+                            ],
+                            "field": "name",
+                            "help": "A unique name for this data input.",
+                            "required": true
+                        },
+                        {
+                            "type": "singleSelect",
+                            "label": "Account",
+                            "options": {
+                                "referenceName": "account"
+                            },
+                            "help": "Omada controller account to use for this input.",
+                            "field": "account",
+                            "required": true,
+                            "validators": [
+                                {
+                                    "type": "string",
+                                    "errorMsg": "Length of account name should be between 1 and 100",
+                                    "minLength": 1,
+                                    "maxLength": 100
+                                }
+                            ]
+                        },
+                        {
+                            "type": "singleSelect",
+                            "field": "index",
+                            "label": "Index",
+                            "defaultValue": "default",
+                            "options": {
+                                "endpointUrl": "data/indexes?search=isInternal=0+disabled=0",
+                                "denyList": "^_.*$",
+                                "createSearchChoice": true
+                            },
+                            "validators": [
+                                {
+                                    "type": "index_name"
+                                }
+                            ]
+                        },
+                        {
+                            "type": "text",
+                            "field": "interval",
+                            "label": "Interval",
+                            "validators": [
+                                {
+                                    "type": "regex",
+                                    "errorMsg": "Interval must be either a non-negative number, CRON interval or -1.",
+                                    "pattern": "^((?:-1|\\d+(?:\\.\\d+)?)|(([\\*\\d{1,2}\\,\\-\\/]+\\s){4}[\\*\\d{1,2}\\,\\-\\/]+))$"
+                                },
+                                {
+                                    "type": "number",
+                                    "range": [
+                                        30,
+                                        86400
+                                    ],
+                                    "errorMsg": "Interval must be between 30 and 86400"
+                                }
+                            ],
+                            "help": "Polling interval in seconds.",
+                            "required": true,
+                            "defaultValue": "60"
+                        },
+                        {
+                            "type": "multipleSelect",
+                            "label": "Fields",
+                            "field": "fields",
+                            "help": "Select which fields to ingest for this input. The list is fetched live from the controller via the selected Account once one is chosen, reflecting whatever this firmware actually returns rather than a fixed guess - refreshes automatically if you change the Account. Leave empty to ingest every field. A small set of identifying fields (e.g. mac/name/site) is always included in the ingested data regardless of this selection, even if not checked here, so records stay correlatable.",
+                            "options": {
+                                "endpointUrl": "ta_omada_oc200_fields_clients",
+                                "dependencies": [
+                                    "account"
+                                ]
+                            },
+                            "required": false
+                        },
+                        {
+                            "type": "text",
+                            "label": "Site ID filter (optional)",
+                            "field": "site_filter",
+                            "help": "Comma-separated Omada site IDs to restrict collection to. Leave blank to collect all sites visible to this account."
+                        }
+                    ]
+                },
+                {
+                    "name": "internet",
+                    "title": "Internet/WAN Stats",
+                    "inputHelperModule": "internet_helper",
+                    "entity": [
+                        {
+                            "type": "text",
+                            "label": "Name",
+                            "validators": [
+                                {
+                                    "type": "regex",
+                                    "errorMsg": "Input Name must begin with a letter and consist exclusively of alphanumeric characters and underscores.",
+                                    "pattern": "^[a-zA-Z]\\w*$"
+                                },
+                                {
+                                    "type": "string",
+                                    "errorMsg": "Length of input name should be between 1 and 100",
+                                    "minLength": 1,
+                                    "maxLength": 100
+                                }
+                            ],
+                            "field": "name",
+                            "help": "A unique name for this data input.",
+                            "required": true
+                        },
+                        {
+                            "type": "singleSelect",
+                            "label": "Account",
+                            "options": {
+                                "referenceName": "account"
+                            },
+                            "help": "Omada controller account to use for this input.",
+                            "field": "account",
+                            "required": true,
+                            "validators": [
+                                {
+                                    "type": "string",
+                                    "errorMsg": "Length of account name should be between 1 and 100",
+                                    "minLength": 1,
+                                    "maxLength": 100
+                                }
+                            ]
+                        },
+                        {
+                            "type": "singleSelect",
+                            "field": "index",
+                            "label": "Index",
+                            "defaultValue": "default",
+                            "options": {
+                                "endpointUrl": "data/indexes?search=isInternal=0+disabled=0",
+                                "denyList": "^_.*$",
+                                "createSearchChoice": true
+                            },
+                            "validators": [
+                                {
+                                    "type": "index_name"
+                                }
+                            ],
+                            "help": "Destination events index."
+                        },
+                        {
+                            "type": "text",
+                            "field": "interval",
+                            "label": "Interval",
+                            "validators": [
+                                {
+                                    "type": "regex",
+                                    "errorMsg": "Interval must be either a non-negative number, CRON interval or -1.",
+                                    "pattern": "^((?:-1|\\d+(?:\\.\\d+)?)|(([\\*\\d{1,2}\\,\\-\\/]+\\s){4}[\\*\\d{1,2}\\,\\-\\/]+))$"
+                                },
+                                {
+                                    "type": "number",
+                                    "range": [
+                                        30,
+                                        86400
+                                    ],
+                                    "errorMsg": "Interval must be between 30 and 86400"
+                                }
+                            ],
+                            "help": "Polling interval in seconds.",
+                            "required": true,
+                            "defaultValue": "60"
+                        },
+                        {
+                            "type": "multipleSelect",
+                            "label": "Fields",
+                            "field": "fields",
+                            "help": "Select which fields to ingest for this input. The list is fetched live from the controller via the selected Account once one is chosen, reflecting whatever this firmware actually returns rather than a fixed guess - refreshes automatically if you change the Account. Leave empty to ingest every field. A small set of identifying fields (e.g. mac/name/site) is always included in the ingested data regardless of this selection, even if not checked here, so records stay correlatable.",
+                            "options": {
+                                "endpointUrl": "ta_omada_oc200_fields_internet",
+                                "dependencies": [
+                                    "account"
+                                ]
+                            },
+                            "required": false
+                        },
+                        {
+                            "type": "text",
+                            "label": "Site ID filter (optional)",
+                            "field": "site_filter",
+                            "help": "Comma-separated Omada site IDs to restrict collection to. Leave blank to collect all sites visible to this account."
+                        }
+                    ]
+                },
+                {
+                    "name": "client_stats",
+                    "title": "Client Stats (traffic/activity metrics by IP)",
+                    "inputHelperModule": "client_stats_helper",
+                    "entity": [
+                        {
+                            "type": "text",
+                            "label": "Name",
+                            "validators": [
+                                {
+                                    "type": "regex",
+                                    "errorMsg": "Input Name must begin with a letter and consist exclusively of alphanumeric characters and underscores.",
+                                    "pattern": "^[a-zA-Z]\\w*$"
+                                },
+                                {
+                                    "type": "string",
+                                    "errorMsg": "Length of input name should be between 1 and 100",
+                                    "minLength": 1,
+                                    "maxLength": 100
+                                }
+                            ],
+                            "field": "name",
+                            "help": "A unique name for this data input.",
+                            "required": true
+                        },
+                        {
+                            "type": "singleSelect",
+                            "label": "Account",
+                            "options": {
+                                "referenceName": "account"
+                            },
+                            "help": "Omada controller account to use for this input.",
+                            "field": "account",
+                            "required": true,
+                            "validators": [
+                                {
+                                    "type": "string",
+                                    "errorMsg": "Length of account name should be between 1 and 100",
+                                    "minLength": 1,
+                                    "maxLength": 100
+                                }
+                            ]
+                        },
+                        {
+                            "type": "singleSelect",
+                            "field": "index",
+                            "label": "Metrics index",
+                            "defaultValue": "default",
+                            "options": {
+                                "endpointUrl": "data/indexes?search=isInternal=0+disabled=0",
+                                "denyList": "^_.*$",
+                                "createSearchChoice": true
+                            },
+                            "validators": [
+                                {
+                                    "type": "index_name"
+                                }
+                            ]
+                        },
+                        {
+                            "type": "text",
+                            "field": "interval",
+                            "label": "Interval",
+                            "validators": [
+                                {
+                                    "type": "regex",
+                                    "errorMsg": "Interval must be either a non-negative number, CRON interval or -1.",
+                                    "pattern": "^((?:-1|\\d+(?:\\.\\d+)?)|(([\\*\\d{1,2}\\,\\-\\/]+\\s){4}[\\*\\d{1,2}\\,\\-\\/]+))$"
+                                },
+                                {
+                                    "type": "number",
+                                    "range": [
+                                        30,
+                                        86400
+                                    ],
+                                    "errorMsg": "Interval must be between 30 and 86400"
+                                }
+                            ],
+                            "help": "Polling interval in seconds. This input emits metrics, not events - the destination index must be a metrics index.",
+                            "required": true,
+                            "defaultValue": "60"
+                        },
+                        {
+                            "type": "multipleSelect",
+                            "label": "Fields",
+                            "field": "fields",
+                            "help": "Select which fields to ingest for this input. The list is fetched live from the controller via the selected Account once one is chosen. Leave empty to ingest every field. mac/name/ip/site_id are always included regardless of this selection, so records stay correlatable and can be grouped by IP.",
+                            "options": {
+                                "endpointUrl": "ta_omada_oc200_fields_client_stats",
+                                "dependencies": [
+                                    "account"
+                                ]
+                            },
+                            "required": false
+                        },
+                        {
+                            "type": "text",
+                            "label": "Site ID filter (optional)",
+                            "field": "site_filter",
+                            "help": "Comma-separated Omada site IDs to restrict collection to. Leave blank to collect all sites visible to this account."
+                        }
+                    ]
+                }
+            ],
+            "title": "Inputs",
+            "description": "Manage Omada OC200 data inputs",
+            "table": {
+                "actions": [
+                    "edit",
+                    "delete",
+                    "clone"
+                ],
+                "header": [
+                    {
+                        "label": "Name",
+                        "field": "name"
+                    },
+                    {
+                        "label": "Interval",
+                        "field": "interval"
+                    },
+                    {
+                        "label": "Index",
+                        "field": "index"
+                    },
+                    {
+                        "label": "Status",
+                        "field": "disabled"
+                    }
+                ],
+                "moreInfo": [
+                    {
+                        "label": "Name",
+                        "field": "name"
+                    },
+                    {
+                        "label": "Interval",
+                        "field": "interval"
+                    },
+                    {
+                        "label": "Index",
+                        "field": "index"
+                    },
+                    {
+                        "label": "Account",
+                        "field": "account"
+                    },
+                    {
+                        "label": "Status",
+                        "field": "disabled",
+                        "mapping": {
+                            "true": "Inactive",
+                            "false": "Active"
+                        }
+                    }
+                ]
+            }
+        },
+        "dashboard": {
+            "panels": [
+                {
+                    "name": "default"
+                }
+            ]
+        }
+    },
+    "meta": {
+        "name": "ta_omada_oc200",
+        "restRoot": "ta_omada_oc200",
+        "version": "0.3.2",
+        "displayName": "Omada OC200 Add-on for Splunk",
+        "schemaVersion": "0.0.10",
+        "supportedThemes": [
+            "light",
+            "dark"
+        ],
+        "_uccVersion": "6.6.0"
+    },
+    "options": {
+        "restHandlers": [
+            {
+                "name": "ta_omada_oc200_fields_devices",
+                "endpoint": "ta_omada_oc200_fields_devices",
+                "handlerType": "EAI",
+                "registerHandler": {
+                    "file": "ta_omada_oc200_rh_fields_devices.py",
+                    "actions": [
+                        "list"
+                    ]
+                },
+                "requestParameters": {
+                    "list": {
+                        "account": {
+                            "schema": {
+                                "type": "string"
+                            },
+                            "required": false
+                        }
+                    }
+                },
+                "responseParameters": {
+                    "list": {
+                        "label": {
+                            "schema": {
+                                "type": "string"
+                            },
+                            "required": false
+                        }
+                    }
+                }
+            },
+            {
+                "name": "ta_omada_oc200_fields_device_stats",
+                "endpoint": "ta_omada_oc200_fields_device_stats",
+                "handlerType": "EAI",
+                "registerHandler": {
+                    "file": "ta_omada_oc200_rh_fields_device_stats.py",
+                    "actions": [
+                        "list"
+                    ]
+                },
+                "requestParameters": {
+                    "list": {
+                        "account": {
+                            "schema": {
+                                "type": "string"
+                            },
+                            "required": false
+                        }
+                    }
+                },
+                "responseParameters": {
+                    "list": {
+                        "label": {
+                            "schema": {
+                                "type": "string"
+                            },
+                            "required": false
+                        }
+                    }
+                }
+            },
+            {
+                "name": "ta_omada_oc200_fields_clients",
+                "endpoint": "ta_omada_oc200_fields_clients",
+                "handlerType": "EAI",
+                "registerHandler": {
+                    "file": "ta_omada_oc200_rh_fields_clients.py",
+                    "actions": [
+                        "list"
+                    ]
+                },
+                "requestParameters": {
+                    "list": {
+                        "account": {
+                            "schema": {
+                                "type": "string"
+                            },
+                            "required": false
+                        }
+                    }
+                },
+                "responseParameters": {
+                    "list": {
+                        "label": {
+                            "schema": {
+                                "type": "string"
+                            },
+                            "required": false
+                        }
+                    }
+                }
+            },
+            {
+                "name": "ta_omada_oc200_fields_internet",
+                "endpoint": "ta_omada_oc200_fields_internet",
+                "handlerType": "EAI",
+                "registerHandler": {
+                    "file": "ta_omada_oc200_rh_fields_internet.py",
+                    "actions": [
+                        "list"
+                    ]
+                },
+                "requestParameters": {
+                    "list": {
+                        "account": {
+                            "schema": {
+                                "type": "string"
+                            },
+                            "required": false
+                        }
+                    }
+                },
+                "responseParameters": {
+                    "list": {
+                        "label": {
+                            "schema": {
+                                "type": "string"
+                            },
+                            "required": false
+                        }
+                    }
+                }
+            },
+            {
+                "name": "ta_omada_oc200_fields_client_stats",
+                "endpoint": "ta_omada_oc200_fields_client_stats",
+                "handlerType": "EAI",
+                "registerHandler": {
+                    "file": "ta_omada_oc200_rh_fields_client_stats.py",
+                    "actions": [
+                        "list"
+                    ]
+                },
+                "requestParameters": {
+                    "list": {
+                        "account": {
+                            "schema": {
+                                "type": "string"
+                            },
+                            "required": false
+                        }
+                    }
+                },
+                "responseParameters": {
+                    "list": {
+                        "label": {
+                            "schema": {
+                                "type": "string"
+                            },
+                            "required": false
+                        }
+                    }
+                }
+            }
+        ]
+    }
+}
